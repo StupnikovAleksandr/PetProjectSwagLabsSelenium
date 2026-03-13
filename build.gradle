@@ -1,0 +1,37 @@
+plugins {
+    id 'java'
+}
+
+group = 'org.example'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'com.codeborne:selenide:6.19.0'
+    testImplementation 'io.qameta.allure:allure-junit5:2.21.0'
+}
+
+test {
+    useJUnitPlatform()
+    // Указываем Allure писать результаты в нужную папку
+    systemProperty 'allure.results.directory', 'build/allure-results'
+}
+
+// Генерация HTML-отчёта Allure
+task allureReport(type: Exec) {
+    dependsOn test
+    description = 'Генерирует HTML-отчёт Allure из результатов тестов'
+    commandLine 'allure', 'generate', 'build/allure-results', '--output', 'build/reports/allure-report', '--clean'
+}
+
+// Запуск локального сервера для просмотра отчёта
+task allureServe(type: Exec) {
+    dependsOn allureReport
+    description = 'Запускает веб-сервер для просмотра отчёта Allure'
+    commandLine 'allure', 'serve', 'build/allure-results'
+}
